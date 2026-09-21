@@ -1,0 +1,9 @@
+node_modules
+.next
+.next-e2e
+data
+.test-data
+test-results
+playwright-report
+package-lock.json
+public/fonts

@@ -24,9 +24,7 @@ test('reinitializing preserves edited names, settings, records, and passwords', 
       currentPassword: 'ShamDemo2026!',
       newPassword: 'SavedPassword2026!',
     });
-    await s.db.transaction((c) =>
-      new HospitalSession(c, true).initialize(undefined, 'DifferentSeedPassword2026!'),
-    );
+    await s.db.transaction((c) => new HospitalSession(c, true).initialize());
     const after = await s.snapshot(admin);
     assert.deepEqual(after.records, before.records);
     assert.deepEqual(after.settings, before.settings);

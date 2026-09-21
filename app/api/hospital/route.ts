@@ -4,7 +4,6 @@ export const maxDuration = 60;
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 const COOKIE = 'sham_session';
-const demoLoginAvailable = () => process.env.VERCEL !== '1' && !process.env.SHAM_DEMO_PASSWORD;
 function errorResponse(error: unknown) {
   if (error instanceof DomainError)
     return NextResponse.json({ error: error.message }, { status: error.status });
@@ -25,13 +24,12 @@ export async function GET(request: NextRequest) {
     const user = await store.user(request.cookies.get(COOKIE)?.value);
     if (!user)
       return NextResponse.json(
-        { user: null, demo: store.demo, demoLoginAvailable: store.demo && demoLoginAvailable() },
+        { user: null, demo: store.demo },
         { headers: { 'Cache-Control': 'no-store' } },
       );
-    return NextResponse.json(
-      { ...(await store.snapshot(user)), demoLoginAvailable: store.demo && demoLoginAvailable() },
-      { headers: { 'Cache-Control': 'no-store' } },
-    );
+    return NextResponse.json(await store.snapshot(user), {
+      headers: { 'Cache-Control': 'no-store' },
+    });
   } catch (error) {
     return errorResponse(error);
   }

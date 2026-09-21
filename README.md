@@ -14,7 +14,7 @@ npm run dev
 
 Open http://127.0.0.1:3000. Development and production scripts bind to loopback by default.
 
-Demo accounts: `admin@sham.clinic`, `doctor@sham.clinic`, `nurse@sham.clinic`, `reception@sham.clinic`, `lab@sham.clinic`, `pharmacy@sham.clinic`, and `billing@sham.clinic`. All use **ShamDemo2026!**. Use the role buttons on the login page. Demo mode contains fictional data. Hosted demos require a unique SHAM_DEMO_PASSWORD; see [Vercel deployment](docs/deployment.md).
+Demo accounts: `admin@sham.clinic`, `doctor@sham.clinic`, `nurse@sham.clinic`, `reception@sham.clinic`, `lab@sham.clinic`, `pharmacy@sham.clinic`, and `billing@sham.clinic`. All use **ShamDemo2026!**. Use the role buttons on the login page. Demo mode contains fictional data. Demo mode uses the same default password locally and online; see [Vercel deployment](docs/deployment.md).
 
 ```powershell
 npm run typecheck

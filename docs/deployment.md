@@ -7,15 +7,14 @@ Vercel functions cannot persist the local SQLite file. Setting `SHAM_DB_PATH` to
 3. Select Node.js 24.x in Project Settings and redeploy. The first API request creates the tables and initializes an empty database in one transaction. Alternatively run `npm run db:setup` with these variables configured locally in `.env.local`.
 4. Open the deployment and sign in as `admin@sham.clinic` using your configured password.
 
-| Variable              | Empty workspace                              | Fictional evaluation workspace                                                   |
-| --------------------- | -------------------------------------------- | -------------------------------------------------------------------------------- |
-| `DATABASE_URL`        | Hosted PostgreSQL URL                        | A separate hosted PostgreSQL URL                                                 |
-| `SHAM_DEMO_MODE`      | `false`                                      | `true`                                                                           |
-| `SHAM_ADMIN_PASSWORD` | Unique password, at least 12 characters      | Not used                                                                         |
-| `SHAM_DEMO_PASSWORD`  | Not used                                     | Unique password, at least 12 characters; the local default is rejected on Vercel |
-| `SHAM_PUBLIC_ORIGIN`  | Exact HTTPS origin, without a trailing slash | Exact HTTPS origin, without a trailing slash                                     |
+| Variable              | Empty workspace                              | Fictional evaluation workspace               |
+| --------------------- | -------------------------------------------- | -------------------------------------------- |
+| `DATABASE_URL`        | Hosted PostgreSQL URL                        | A separate hosted PostgreSQL URL             |
+| `SHAM_DEMO_MODE`      | `false`                                      | `true`                                       |
+| `SHAM_ADMIN_PASSWORD` | Unique password, at least 12 characters      | Not used                                     |
+| `SHAM_PUBLIC_ORIGIN`  | Exact HTTPS origin, without a trailing slash | Exact HTTPS origin, without a trailing slash |
 
-All evaluation role accounts use `SHAM_DEMO_PASSWORD` initially. Hosted login pages do not expose or autofill it. Password variables seed new databases only; changing them does not change existing passwords. Use Account security to rotate an existing password. Separate Preview and Production databases and configure each deployment's origin correctly.
+Demo mode shows the role selector and the default password **ShamDemo2026!** locally and on Vercel. SHAM_ADMIN_PASSWORD is used only to initialize a non-demo workspace. Existing passwords are preserved by database setup; Account security changes an existing password. Separate Preview and Production databases and configure each deployment's origin correctly.
 
 ## Source of truth and seeding
 

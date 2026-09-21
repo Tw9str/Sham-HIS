@@ -5,13 +5,13 @@ import { Avatar, HospitalContext, Icon } from './ui';
 import { Dashboard } from './dashboard';
 import { AuditView, ModuleView, Patients, SettingsView } from './views';
 import { WorkspaceDialog, type DialogState } from './dialogs';
+import { DEMO_PASSWORD } from '@/lib/demo';
 import { useBrowserPreferences } from './browser-preferences';
 
 export function HospitalApp() {
   const { lang, setLang, view } = useBrowserPreferences();
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
   const [loading, setLoading] = useState(true);
-  const [demoLoginAvailable, setDemoLoginAvailable] = useState(false);
   const [demo, setDemo] = useState(false);
   const [dialog, setDialog] = useState<DialogState | null>(null);
   const [mobile, setMobile] = useState(false);
@@ -27,7 +27,6 @@ export function HospitalApp() {
     const data = await response.json();
     if (!response.ok) throw new Error(data.error);
     setDemo(!!data.demo);
-    setDemoLoginAvailable(!!data.demoLoginAvailable);
     setSnapshot(data.user ? data : null);
     setLoading(false);
   }, []);
@@ -38,7 +37,6 @@ export function HospitalApp() {
         const data = await response.json();
         if (!response.ok) throw new Error(data.error);
         setDemo(!!data.demo);
-        setDemoLoginAvailable(!!data.demoLoginAvailable);
         setSnapshot(data.user ? data : null);
         setLoading(false);
       })
@@ -142,13 +140,7 @@ export function HospitalApp() {
   if (!snapshot)
     return (
       <>
-        <Login
-          lang={lang}
-          setLang={setLang}
-          demo={demoLoginAvailable}
-          onLogin={mutate}
-          busy={busy}
-        />
+        <Login lang={lang} setLang={setLang} demo={demo} onLogin={mutate} busy={busy} />
         {toastElement}
       </>
     );
@@ -498,7 +490,7 @@ function Login({
 }) {
   const t = (en: string, ar: string) => (lang === 'ar' ? ar : en);
   const [email, setEmail] = useState(demo ? 'admin@sham.clinic' : '');
-  const [password, setPassword] = useState(demo ? 'ShamDemo2026!' : '');
+  const [password, setPassword] = useState(demo ? DEMO_PASSWORD : '');
   return (
     <main className="login-page">
       <section className="login-story">
@@ -613,7 +605,7 @@ function Login({
                   'Try a different role. All demo accounts use',
                   'جرّب دورًا مختلفًا. كلمة مرور جميع الحسابات التجريبية',
                 )}{' '}
-                <code>ShamDemo2026!</code>
+                <code>{DEMO_PASSWORD}</code>
               </p>
               <div className="demo-role-grid">
                 {[
@@ -630,7 +622,7 @@ function Login({
                     className={email === r.email + '@sham.clinic' ? 'active' : ''}
                     onClick={() => {
                       setEmail(r.email + '@sham.clinic');
-                      setPassword('ShamDemo2026!');
+                      setPassword(DEMO_PASSWORD);
                     }}
                   >
                     {tr(r.role, lang)}

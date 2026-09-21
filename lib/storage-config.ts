@@ -1,6 +1,6 @@
 import { join } from 'node:path';
 import { StorageConfigurationError } from './errors';
-export type StoreOptions = { demo?: boolean; adminPassword?: string; demoPassword?: string };
+export type StoreOptions = { demo?: boolean; adminPassword?: string };
 export function storageConfig(env: Record<string, string | undefined> = process.env) {
   const hosted = env.VERCEL === '1';
   const connectionString = env.DATABASE_URL?.trim();
@@ -22,20 +22,9 @@ export function storageConfig(env: Record<string, string | undefined> = process.
     }
   }
   const demo = env.SHAM_DEMO_MODE === 'true';
-  const demoPassword = env.SHAM_DEMO_PASSWORD;
-  if (
-    hosted &&
-    demo &&
-    (!demoPassword || demoPassword.length < 12 || demoPassword === 'ShamDemo2026!')
-  ) {
-    throw new StorageConfigurationError(
-      'HOSTED_DEMO_PASSWORD_REQUIRED',
-      'Set SHAM_DEMO_PASSWORD to a unique password of at least 12 characters for hosted demo accounts. / حدد كلمة مرور تجريبية خاصة من 12 محرفًا على الأقل.',
-    );
-  }
   return {
     connectionString,
     path: env.SHAM_DB_PATH ?? join(process.cwd(), 'data', 'sham.sqlite'),
-    options: { demo, adminPassword: env.SHAM_ADMIN_PASSWORD, demoPassword } satisfies StoreOptions,
+    options: { demo, adminPassword: env.SHAM_ADMIN_PASSWORD } satisfies StoreOptions,
   };
 }

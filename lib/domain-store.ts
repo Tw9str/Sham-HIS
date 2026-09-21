@@ -10,6 +10,7 @@ import {
   type Audit,
 } from './catalog';
 import { seedData, demoUsers } from './seed';
+import { DEMO_PASSWORD } from './demo';
 import { actionSchema, dateSchema, integerQuantity, moneyCents } from './validation';
 import { DomainError, StorageConfigurationError } from './errors';
 import type { SqlConnection } from './database';
@@ -32,7 +33,7 @@ export class HospitalSession {
     public db: SqlConnection,
     public demo: boolean,
   ) {}
-  async initialize(adminPassword?: string, demoPassword?: string) {
+  async initialize(adminPassword?: string) {
     await this.db.exec(`
    CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
    CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, email TEXT UNIQUE NOT NULL, password TEXT NOT NULL, body TEXT NOT NULL);
@@ -57,7 +58,7 @@ export class HospitalSession {
           .run(
             u.id,
             u.email,
-            hashPassword(this.demo ? (demoPassword ?? 'ShamDemo2026!') : adminPassword!),
+            hashPassword(this.demo ? DEMO_PASSWORD : adminPassword!),
             JSON.stringify(u),
           );
       if (this.demo) {

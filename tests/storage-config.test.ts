@@ -13,16 +13,13 @@ test('Vercel requires PostgreSQL and cannot fall back to a local file', () => {
   assert.equal(config.connectionString, 'postgresql://example/db');
   assert.equal(config.options.demo, false);
 });
-test('hosted demo credentials must be explicitly configured', () => {
-  const env = { VERCEL: '1', DATABASE_URL: 'postgres://example/db', SHAM_DEMO_MODE: 'true' };
-  for (const password of [undefined, 'short', 'ShamDemo2026!']) {
-    assert.throws(() => storageConfig({ ...env, SHAM_DEMO_PASSWORD: password }), {
-      code: 'HOSTED_DEMO_PASSWORD_REQUIRED',
-    });
-  }
-  assert.equal(
-    storageConfig({ ...env, SHAM_DEMO_PASSWORD: 'UniqueHostedDemo2026!' }).options.demo,
-    true,
-  );
-  assert.equal(storageConfig({ SHAM_DEMO_MODE: 'true' }).connectionString, undefined);
+test('demo mode is explicitly enabled for cloud and local databases', () => {
+  const config = storageConfig({
+    VERCEL: '1',
+    DATABASE_URL: 'postgres://example/db',
+    SHAM_DEMO_MODE: 'true',
+  });
+  assert.deepEqual(config.options, { demo: true, adminPassword: undefined });
+  assert.equal(storageConfig({ SHAM_DEMO_MODE: 'true' }).options.demo, true);
+  assert.equal(storageConfig({ SHAM_DEMO_MODE: 'false' }).options.demo, false);
 });

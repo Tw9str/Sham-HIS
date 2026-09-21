@@ -112,3 +112,30 @@ test('every department workspace renders in English and Arabic', async ({ page }
   }
   expect(errors).toEqual([]);
 });
+
+for (const demo of [true, false]) {
+  test(
+    'demo card and default password are ' + (demo ? 'enabled' : 'disabled'),
+    async ({ page }) => {
+      await page.route('**/api/hospital', (route) => route.fulfill({ json: { user: null, demo } }));
+      await page.goto('/');
+      await expect(
+        page.getByRole('button', { name: 'Sign in to workspace', exact: true }),
+      ).toBeVisible();
+      await expect(page.locator('.demo-login')).toHaveCount(demo ? 1 : 0);
+      await expect(page.getByLabel('Password', { exact: true })).toHaveValue(
+        demo ? 'ShamDemo2026!' : '',
+      );
+      if (demo) {
+        await expect(page.locator('.demo-role-grid button')).toHaveCount(7);
+        await expect(page.locator('.demo-login code')).toHaveText('ShamDemo2026!');
+        await page.getByRole('button', { name: 'Receptionist', exact: true }).click();
+        await expect(page.getByLabel('Email address', { exact: true })).toHaveValue(
+          'reception@sham.clinic',
+        );
+        await page.getByRole('button', { name: 'العربية', exact: true }).click();
+        await expect(page.getByText('استكشف النسخة التجريبية', { exact: true })).toBeVisible();
+      }
+    },
+  );
+}

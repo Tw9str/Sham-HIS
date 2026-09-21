@@ -13,7 +13,7 @@ export class HospitalStore {
   static async fromDatabase(db: HospitalDatabase, options: StoreOptions = {}) {
     const store = new HospitalStore(db, options.demo ?? false);
     try {
-      await store.run((s) => s.initialize(options.adminPassword, options.demoPassword), true);
+      await store.run((s) => s.initialize(options.adminPassword), true);
       return store;
     } catch (error) {
       await db.close();

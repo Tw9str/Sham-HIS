@@ -35,7 +35,7 @@ This release implements the first local hospital workspace. It is meant to valid
 - The chart shows what each role can read. Basic patient demographics and the staff directory are shared with all signed-in roles; care-team or ward-based scoping is not implemented.
 - Local SQLite requires a persistent filesystem. Vercel deployments use hosted PostgreSQL; see deployment.md. Writes currently serialize per database; high-volume and multi-region performance remain unverified.
 - Database contents and local backups are not encrypted by the application. Demo credentials, sample patient data, and non-production security settings must be removed for a production implementation.
-- Known local demo credentials must not be exposed publicly. Hosted demos require a unique SHAM_DEMO_PASSWORD. Local scripts bind localhost.
+- Public demo mode intentionally exposes its fictional-workspace login. Local scripts bind localhost.
 
 ## Suggested implementation sequence
 

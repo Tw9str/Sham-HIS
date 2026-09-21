@@ -11,6 +11,7 @@ export function HospitalApp() {
   const { lang, setLang, view } = useBrowserPreferences();
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
   const [loading, setLoading] = useState(true);
+  const [demoLoginAvailable, setDemoLoginAvailable] = useState(false);
   const [demo, setDemo] = useState(false);
   const [dialog, setDialog] = useState<DialogState | null>(null);
   const [mobile, setMobile] = useState(false);
@@ -26,6 +27,7 @@ export function HospitalApp() {
     const data = await response.json();
     if (!response.ok) throw new Error(data.error);
     setDemo(!!data.demo);
+    setDemoLoginAvailable(!!data.demoLoginAvailable);
     setSnapshot(data.user ? data : null);
     setLoading(false);
   }, []);
@@ -36,6 +38,7 @@ export function HospitalApp() {
         const data = await response.json();
         if (!response.ok) throw new Error(data.error);
         setDemo(!!data.demo);
+        setDemoLoginAvailable(!!data.demoLoginAvailable);
         setSnapshot(data.user ? data : null);
         setLoading(false);
       })
@@ -139,7 +142,13 @@ export function HospitalApp() {
   if (!snapshot)
     return (
       <>
-        <Login lang={lang} setLang={setLang} demo={demo} onLogin={mutate} busy={busy} />
+        <Login
+          lang={lang}
+          setLang={setLang}
+          demo={demoLoginAvailable}
+          onLogin={mutate}
+          busy={busy}
+        />
         {toastElement}
       </>
     );
@@ -294,7 +303,9 @@ export function HospitalApp() {
             </button>
             <div className="workspace-label">
               <i />
-              {demo ? t('DEMO WORKSPACE', 'مساحة تجريبية') : t('LOCAL WORKSPACE', 'مساحة محلية')}
+              {demo
+                ? t('DEMO WORKSPACE', 'مساحة تجريبية')
+                : t('HOSPITAL WORKSPACE', 'مساحة المستشفى')}
               <span>v0.1</span>
             </div>
             <button className="sidebar-profile" onClick={() => navigate('settings')}>

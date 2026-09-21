@@ -17,6 +17,10 @@ export default defineConfig({
     timeout: 120000,
     env: {
       SHAM_DEMO_MODE: 'true',
+      DATABASE_URL: '',
+      VERCEL: '',
+      SHAM_DEMO_PASSWORD: '',
+      SHAM_PUBLIC_ORIGIN: 'http://127.0.0.1:3100',
       SHAM_DB_PATH: '.test-data/e2e.sqlite',
       SHAM_BUILD_DIR: '.next-e2e',
     },

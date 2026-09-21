@@ -1,12 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { DomainError, getStore } from '@/lib/store';
+import { DomainError, StorageConfigurationError, getStore } from '@/lib/store';
+export const maxDuration = 60;
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 const COOKIE = 'sham_session';
+const demoLoginAvailable = () => process.env.VERCEL !== '1' && !process.env.SHAM_DEMO_PASSWORD;
 function errorResponse(error: unknown) {
   if (error instanceof DomainError)
     return NextResponse.json({ error: error.message }, { status: error.status });
-  console.error('Hospital API error', error);
+  if (error instanceof StorageConfigurationError)
+    return NextResponse.json({ error: error.message, code: error.code }, { status: 503 });
+  console.error('Hospital API error', {
+    name: error instanceof Error ? error.name : 'Unknown',
+    code: (error as { code?: string })?.code,
+  });
   return NextResponse.json(
     { error: 'The request could not be completed. / تعذر إكمال الطلب.' },
     { status: 500 },
@@ -14,14 +21,17 @@ function errorResponse(error: unknown) {
 }
 export async function GET(request: NextRequest) {
   try {
-    const store = getStore();
-    const user = store.user(request.cookies.get(COOKIE)?.value);
+    const store = await getStore();
+    const user = await store.user(request.cookies.get(COOKIE)?.value);
     if (!user)
       return NextResponse.json(
-        { user: null, demo: store.demo },
+        { user: null, demo: store.demo, demoLoginAvailable: store.demo && demoLoginAvailable() },
         { headers: { 'Cache-Control': 'no-store' } },
       );
-    return NextResponse.json(store.snapshot(user), { headers: { 'Cache-Control': 'no-store' } });
+    return NextResponse.json(
+      { ...(await store.snapshot(user)), demoLoginAvailable: store.demo && demoLoginAvailable() },
+      { headers: { 'Cache-Control': 'no-store' } },
+    );
   } catch (error) {
     return errorResponse(error);
   }
@@ -46,7 +56,7 @@ export async function POST(request: NextRequest) {
       throw new DomainError('Invalid JSON.');
     }
     if (!body || typeof body !== 'object') throw new DomainError('Invalid request.');
-    const store = getStore();
+    const store = await getStore();
     if (body.action === 'login') {
       if (
         typeof body.email !== 'string' ||
@@ -55,7 +65,7 @@ export async function POST(request: NextRequest) {
         body.password.length > 200
       )
         throw new DomainError('Invalid credentials.');
-      const { token } = store.login(body.email, body.password);
+      const { token } = await store.login(body.email, body.password);
       const response = NextResponse.json({ ok: true });
       response.cookies.set(COOKIE, token, {
         httpOnly: true,
@@ -67,15 +77,15 @@ export async function POST(request: NextRequest) {
       return response;
     }
     const token = request.cookies.get(COOKIE)?.value;
-    const user = store.user(token);
+    const user = await store.user(token);
     if (!user) throw new DomainError('Please sign in again. / يرجى تسجيل الدخول مجددًا.', 401);
     if (body.action === 'logout') {
-      store.logout(token!);
+      await store.logout(token!);
       const response = NextResponse.json({ ok: true });
       response.cookies.delete(COOKIE);
       return response;
     }
-    const result = store.execute(user, body);
+    const result = await store.execute(user, body);
     return NextResponse.json({ ok: true, ...result });
   } catch (error) {
     return errorResponse(error);

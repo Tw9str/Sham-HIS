@@ -1,6 +1,6 @@
 # Sham Clinic — عيادة شام
 
-A bilingual Next.js hospital workspace with persistent local records, server-enforced roles, and connected clinical and administrative screens. This is a working **first evaluation release**, not a complete or clinically certified enterprise HIS.
+A bilingual Next.js hospital workspace with persistent SQLite or PostgreSQL records, server-enforced roles, and connected clinical and administrative screens. This is a working **first evaluation release**, not a complete or clinically certified enterprise HIS.
 
 ## Run locally
 
@@ -14,7 +14,7 @@ npm run dev
 
 Open http://127.0.0.1:3000. Development and production scripts bind to loopback by default.
 
-Demo accounts: `admin@sham.clinic`, `doctor@sham.clinic`, `nurse@sham.clinic`, `reception@sham.clinic`, `lab@sham.clinic`, `pharmacy@sham.clinic`, and `billing@sham.clinic`. All use **ShamDemo2026!**. Use the role buttons on the login page. Demo mode contains fictional data and must remain local; never deploy known demo credentials publicly.
+Demo accounts: `admin@sham.clinic`, `doctor@sham.clinic`, `nurse@sham.clinic`, `reception@sham.clinic`, `lab@sham.clinic`, `pharmacy@sham.clinic`, and `billing@sham.clinic`. All use **ShamDemo2026!**. Use the role buttons on the login page. Demo mode contains fictional data. Hosted demos require a unique SHAM_DEMO_PASSWORD; see [Vercel deployment](docs/deployment.md).
 
 ```powershell
 npm run typecheck
@@ -26,6 +26,10 @@ npm start
 ```
 
 Browser tests use installed Microsoft Edge, an isolated `.test-data/e2e.sqlite` database, and a separate `.next-e2e` build directory on port 3100. Screenshots are saved to `test-results/`. If Edge is unavailable, install Playwright Chromium and adjust the browser channel in `playwright.config.ts`. Use `npm run format` / `npm run format:check` for source formatting.
+
+## Vercel
+
+Configure hosted PostgreSQL with DATABASE_URL. Follow [docs/deployment.md](docs/deployment.md) for environment variables, seeding, and deployment verification. Existing local records are not automatically migrated.
 
 ## Implemented
 
@@ -40,12 +44,12 @@ Browser tests use installed Microsoft Edge, an isolated `.test-data/e2e.sqlite` 
 - Issued invoices are immutable; paid invoices cannot be edited or voided. Billing permission required to record payment. These are local payment records, not payment processing or a general ledger.
 - Password hashing with scrypt, hashed opaque sessions in HttpOnly/SameSite cookies, a 12-hour session lifetime, password-change session revocation, per-account login throttling, origin checks, input validation, and server-side read/write permissions.
 - Transactional audit events. Audit view shows the latest 300 events; the database retains older events. Audit data is application-read-only, **not** tamper-evident against filesystem/database administrators.
-- Local SQLite persistence in `data/sham.sqlite`, WAL mode and foreign keys. No patient data is stored in browser local storage; only the language preference is stored there.
+- SQLite persistence locally and hosted PostgreSQL on Vercel, with transactional writes and foreign keys. No patient data is stored in browser local storage; only the language preference is stored there.
 
 ## Architecture
 
 - `app/api/hospital/route.ts`: authenticated API and same-origin mutation checks.
-- `lib/store.ts`: local database, identity, transactions, authorization, and workflow rules.
+- `lib/store.ts`: asynchronous store and database selection; `lib/domain-store.ts`: identity, authorization, and workflow rules; `lib/*-database.ts`: transactional storage adapters.
 - `lib/catalog.ts`: bilingual module definitions, roles, statuses, and field metadata.
 - `lib/validation.ts`: Zod schemas, dates, integers, monetary input validation.
 - `lib/seed.ts`: fictional evaluation data.
